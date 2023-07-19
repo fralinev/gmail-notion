@@ -172,7 +172,10 @@ app.get("/sync", async (req, res) => {
       //   gmailIds.push(entry.properties.gmail_id.rich_text[0].text.content);
       // }
 
-      if (archivedLink && !entry.arkived) {
+      if (
+        archivedLink &&
+        entry.properties.arkived.rich_text[0].text.content === "false"
+      ) {
         await notion.pages.update({
           page_id: entry.id,
           properties: {
@@ -206,8 +209,6 @@ app.get("/sync", async (req, res) => {
           block_id: entry.id,
         });
       }
-
-      console.log(entry.arkived, entry.id);
     }
 
     const { data } = await gmail.users.messages.list({
@@ -349,7 +350,6 @@ app.get("/sync", async (req, res) => {
             },
           ],
         });
-        console.log(filteredLinksInUncategorizedBlock);
         const toBeRemoved =
           filteredLinksInPriorityBlock.find(
             (link) => link.link_to_page.page_id === entry.id
