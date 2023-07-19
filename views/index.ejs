@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail-Notion</title>
+</head>
+<body>
+    <button id="authorize_button">Authorize</button>
+    <button id="logout_button">Logout</button>
+    
+    <pre id="content" style="white-space: pre-wrap;"></pre>
+
+    <p><%= authed %></p>
+    <script>
+
+        document.getElementById('logout_button').style.visibility = 'hidden';
+
+
+        document.getElementById('logout').addEventListener('click', function () {
+            fetch('/logout')
+                .then(function () {
+                    window.location.href = '/';
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>
