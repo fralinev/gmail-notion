@@ -171,11 +171,12 @@ app.get("/sync", async (req, res) => {
       // if (!cached && entry.archived === false) {
       //   gmailIds.push(entry.properties.gmail_id.rich_text[0].text.content);
       // }
+      const ark = await notion.pages.properties.retrieve({
+        page_id: entry.id,
+        property_id: "zxkb",
+      });
 
-      if (
-        archivedLink &&
-        entry.properties.arkived.rich_text[0].text.content === "false"
-      ) {
+      if (archivedLink && ark.results[0].rich_text.text.content === "false") {
         // await
         await notion.pages.update({
           page_id: entry.id,
@@ -192,10 +193,7 @@ app.get("/sync", async (req, res) => {
             },
           },
         });
-        console.log(
-          "----------------------++++++++ EUIEUIUEIUEI",
-          entry.properties.arkived.rich_text[0].text.content
-        );
+
         // await
         await gmail.users.messages.modify({
           userId: "me",
@@ -206,10 +204,7 @@ app.get("/sync", async (req, res) => {
         });
       }
 
-      if (
-        !archivedLink &&
-        entry.properties.arkived.rich_text[0].text.content === "true"
-      ) {
+      if (!archivedLink && ark.results[0].rich_text.text.content === "true") {
         console.log("deleting: ", entry.id);
         await notion.blocks.delete({
           block_id: entry.id,
@@ -322,6 +317,7 @@ app.get("/sync", async (req, res) => {
           message.data.id ===
           entry.properties.gmail_id.rich_text[0].text.content
       );
+      console.log("ENTRY", entry);
 
       const ark = await notion.pages.properties.retrieve({
         page_id: entry.id,
