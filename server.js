@@ -176,6 +176,7 @@ app.get("/sync", async (req, res) => {
         archivedLink &&
         entry.properties.arkived.rich_text[0].text.content === "false"
       ) {
+        // await
         await notion.pages.update({
           page_id: entry.id,
           properties: {
@@ -191,6 +192,11 @@ app.get("/sync", async (req, res) => {
             },
           },
         });
+        console.log(
+          "----------------------++++++++ EUIEUIUEIUEI",
+          entry.properties.arkived.rich_text[0].text.content
+        );
+        // await
         await gmail.users.messages.modify({
           userId: "me",
           id: entry.properties.gmail_id.rich_text[0].text.content,
@@ -205,7 +211,7 @@ app.get("/sync", async (req, res) => {
         entry.properties.arkived.rich_text[0].text.content === "true"
       ) {
         console.log("deleting: ", entry.id);
-        notion.blocks.delete({
+        await notion.blocks.delete({
           block_id: entry.id,
         });
       }
@@ -295,6 +301,7 @@ app.get("/sync", async (req, res) => {
           },
         },
       });
+      // await
       await notion.blocks.children.append({
         block_id: process.env.NOTION_UNCATEGORIZED_ID,
         children: [
@@ -315,10 +322,13 @@ app.get("/sync", async (req, res) => {
           message.data.id ===
           entry.properties.gmail_id.rich_text[0].text.content
       );
-      if (
-        !found &&
-        entry.properties.arkived.rich_text[0].text.content === "false"
-      ) {
+
+      const ark = await notion.pages.properties.retrieve({
+        page_id: entry.id,
+        property_id: "zxkb",
+      });
+      console.log("ark: ", ark.results[0].rich_text.text.content);
+      if (!found && ark.results[0].rich_text.text.content === "false") {
         console.log("hit mogo");
 
         // move to archive
@@ -338,7 +348,8 @@ app.get("/sync", async (req, res) => {
             },
           },
         });
-        const response = await notion.blocks.children.append({
+
+        await notion.blocks.children.append({
           block_id: "fb8738478586481c96e6b8cc4c740833",
           children: [
             {
@@ -350,6 +361,7 @@ app.get("/sync", async (req, res) => {
             },
           ],
         });
+        console.log(filteredLinksInUncategorizedBlock);
         const toBeRemoved =
           filteredLinksInPriorityBlock.find(
             (link) => link.link_to_page.page_id === entry.id
@@ -357,7 +369,8 @@ app.get("/sync", async (req, res) => {
           filteredLinksInUncategorizedBlock.find(
             (link) => link.link_to_page.page_id === entry.id
           );
-        console.log("deleting...", toBeRemoved.id);
+        console.log("deleting...", toBeRemoved?.id);
+        // await
         await notion.blocks.delete({
           block_id: toBeRemoved.id,
         });
